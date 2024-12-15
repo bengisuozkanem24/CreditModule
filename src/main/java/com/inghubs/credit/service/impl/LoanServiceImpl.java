@@ -175,7 +175,18 @@ public class LoanServiceImpl implements LoanService {
                 continue;
             }
 
-            remainingAmount -= loanInstallment.getAmount();
+            double change = 0.0;
+            long dayDifference = java.time.temporal.ChronoUnit.DAYS.between(loanInstallment.getDueDate(), LocalDate.now());
+
+            if (dayDifference < 0) {
+                change = -0.001 * Math.abs(dayDifference) * loanInstallment.getAmount();
+            } else if (dayDifference > 0) {
+                change = 0.001 * dayDifference * loanInstallment.getAmount();
+            }
+
+            double changedAmount = loanInstallment.getAmount() + change;
+
+            remainingAmount -= changedAmount;
             loanInstallment.setPaidAmount(loanInstallment.getAmount());
             loanInstallment.setPaymentDate(LocalDate.now());
             loanInstallment.setIsPaid(true);
